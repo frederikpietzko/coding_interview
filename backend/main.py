@@ -1,8 +1,10 @@
 from flask import Flask, request
 from dataclasses import dataclass, asdict
+from flask_cors import CORS
 import json
 
 app = Flask(__name__)
+CORS(app)
 
 
 @dataclass
@@ -36,7 +38,10 @@ comments: list[Comment] = []
 @app.route("/user", methods=["POST"])
 def create_user():
     req = request.get_json()
-    max_user_id = max(map(lambda user: user.id, users))
+    if len(users) == 0:
+        max_user_id = 1
+    else:
+        max_user_id = max(map(lambda user: user.id, users))
     user = User(id=max_user_id + 1, name=req["name"], age=req["age"])
     users.append(user)
     return json.dumps(asdict(user))
@@ -50,7 +55,10 @@ def get_users():
 @app.route("/post", methods=["POST"])
 def create_post():
     req = request.get_json()
-    max_id = max(map(lambda post: post.id, posts))
+    if len(posts) == 0:
+        max_id = 1
+    else:
+        max_id = max(map(lambda post: post.id, posts))
     post = Post(
         id=max_id + 1, title=req["title"], content=req["content"], userId=req["userId"]
     )
@@ -90,7 +98,10 @@ def get_post_user(id: int):
 @app.route("/comment", methods=["POST"])
 def create_comment():
     req = request.get_json()
-    max_id = max(map(lambda comment: comment.id, comments))
+    if len(comments) == 0:
+        max_id = 1
+    else:
+        max_id = max(map(lambda comment: comment.id, comments))
     comment = Comment(
         id=max_id + 1,
         content=req["content"],
